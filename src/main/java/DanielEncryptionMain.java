@@ -1,15 +1,10 @@
-import java.io.BufferedReader;
-import java.io.File;
+package com.capitalone.homeloans.correspondence.runner;
+
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
-import java.util.Arrays;
 
 public class DanielEncryptionMain {
 
@@ -30,13 +25,13 @@ public class DanielEncryptionMain {
     return write;
   }
 
-  public static int[] getNewBinary(String fahrvergnugen, String option) {
-    int fillerLength = fahrvergnugen.length() * 8;
+  public static int[] getNewBinary(String letterValues, String option) {
+    int fillerLength = letterValues.length() * 8;
     int[] binary = new int[fillerLength];
     int j = 0;
-    int[] data = new int[fahrvergnugen.length()];
-    for (int i = 0; i < fahrvergnugen.length(); i++) {
-      data[i] = (int) (fahrvergnugen.charAt(i));
+    int[] data = new int[letterValues.length()];
+    for (int i = 0; i < letterValues.length(); i++) {
+      data[i] = (int) (letterValues.charAt(i));
       for (int k = 7; k > -1; k--) {
         if (data[i] >= (Math.pow(2, k))) {
           binary[j] = 1;
@@ -50,27 +45,27 @@ public class DanielEncryptionMain {
     return binary;
   }
 
-  public static int[] getBinary(String fahrvergnugen, String option) {
+  public static int[] getBinary(String letterValues, String option) {
     int fillerLength = 0;
     int[] binary = new int[fillerLength];
     if ((option.contains("1") || (option.contains("3")))) {
-      if (((fahrvergnugen.length() * 4) % 6) == 0) {
-        fillerLength = (fahrvergnugen.length() * 4);
+      if (((letterValues.length() * 4) % 6) == 0) {
+        fillerLength = (letterValues.length() * 4);
       } else {
-        fillerLength = ((fahrvergnugen.length() * 4) + ((6 - (fahrvergnugen.length() * 4) % 6)));
+        fillerLength = ((letterValues.length() * 4) + ((6 - (letterValues.length() * 4) % 6)));
       }
     } else {
-      fillerLength = (fahrvergnugen.length() * 4);
+      fillerLength = (letterValues.length() * 4);
     }
-    if ((option.contains("x")) && (!fahrvergnugen.matches("[a-fA-F0-9]{1,99}"))) {
+    if ((option.contains("x")) && (!letterValues.matches("[a-fA-F0-9]{1,99}"))) {
       System.out.println("Sorry, your entry is invalid. Value must contain only characters 0-9 or A-F.");
       return binary;
     } else {
       int j = 0;
-      int[] data = new int[fahrvergnugen.length()];
+      int[] data = new int[letterValues.length()];
       binary = new int[fillerLength];
-      for (int i = 0; i < fahrvergnugen.length(); i++) {
-        data[i] = Character.getNumericValue(fahrvergnugen.toLowerCase().charAt(i));
+      for (int i = 0; i < letterValues.length(); i++) {
+        data[i] = Character.getNumericValue(letterValues.toLowerCase().charAt(i));
         for (int k = 3; k > -1; k--) {
           if (data[i] >= (Math.pow(2, k))) {
             binary[j] = 1;
@@ -84,14 +79,14 @@ public class DanielEncryptionMain {
       }
       if ((option.contains("1") || (option.contains("4")))) {
         if (option.contains("1")) {
-          for (j = (fahrvergnugen.length() * 4); j < fillerLength; j++) {
+          for (j = (letterValues.length() * 4); j < fillerLength; j++) {
             binary[j] = 0;
           }
         }
         if (option.contains("4")) {
-          for (j = 0; j < (fahrvergnugen.length() * 4); j++) {
-            binary[j + (fillerLength - (fahrvergnugen.length() * 4))] = binary[j];
-            if (j < (fillerLength - (fahrvergnugen.length() * 4))) {
+          for (j = 0; j < (letterValues.length() * 4); j++) {
+            binary[j + (fillerLength - (letterValues.length() * 4))] = binary[j];
+            if (j < (fillerLength - (letterValues.length() * 4))) {
               binary[j] = 0;
               // System.out.print(binary[j]);
             }
@@ -171,7 +166,7 @@ public class DanielEncryptionMain {
     return hex;
   }
 
-  public static void findKey(String code, String option, String pepe) {
+  public static void findKey(String code, String option, String indicator) {
     String binary = null;
     StringBuffer sbHex = new StringBuffer();
     int highScore = 0;
@@ -199,7 +194,7 @@ public class DanielEncryptionMain {
         binary = sbHex.append("0").toString();
       }
     }
-    List<String> decoded = xorBinary(binary, pepe);
+    List<String> decoded = xorBinary(binary, indicator);
     if (!option.contains("5")) {
       for (int i = 0; i < 256; i++) {
         phrase = decoded.get(i);
@@ -212,7 +207,7 @@ public class DanielEncryptionMain {
         }
       }
       if (highScore > 0) {
-        if (!pepe.toLowerCase().contains("y")) {
+        if (!indicator.toLowerCase().contains("y")) {
           System.out.println("Line: " + code);
           System.out.println("Possible valid text found for key '" + ascii + "' (" + key + "):");
           System.out.println(truePhrase);
@@ -222,12 +217,12 @@ public class DanielEncryptionMain {
     }
   }
 
-  public static List<String> xorBinary(String binary, String pepe) {
+  public static List<String> xorBinary(String binary, String indicator) {
     String xorBinary = null;
     List<String> decodedText = new ArrayList<String>();
     for (int i = 0; i < 256; i++) {
       String key = getKey(i);
-      if (pepe.toLowerCase().contains("y")) {
+      if (indicator.toLowerCase().contains("y")) {
         System.out.println("key: '" + (char) i + "' (" + key + ")");
       }
       StringBuffer sbXOR = new StringBuffer();
@@ -239,7 +234,7 @@ public class DanielEncryptionMain {
           xorBinary = sbXOR.append(xor).toString();
         }
       }
-      String decoded = getASCII(xorBinary, pepe);
+      String decoded = getASCII(xorBinary, indicator);
       decodedText.add(decoded);
     }
     return decodedText;
@@ -255,7 +250,7 @@ public class DanielEncryptionMain {
     return key;
   }
 
-  public static String getASCII(String xorBinary, String pepe) {
+  public static String getASCII(String xorBinary, String indicator) {
     String asciiText = null;
     StringBuffer sb = new StringBuffer();
     for (int j = 0; j < xorBinary.length(); j = j + 8) {
@@ -272,7 +267,7 @@ public class DanielEncryptionMain {
           + xorByte[j + 6] + xorByte[j + 7];
       asciiText = sb.append((char) eight).toString();
     }
-    if (pepe.toLowerCase().contains("y")) {
+    if (indicator.toLowerCase().contains("y")) {
       System.out.print(asciiText);
       System.out.println("");
     }
@@ -442,7 +437,7 @@ public class DanielEncryptionMain {
     return keySize;
   }
 
-  public static String solveIt(String ascii, int keySize, String pepe) {
+  public static String solveIt(String ascii, int keySize, String indicator) {
     String key = null;
     System.out.println("Attempting key size " + keySize + ":");
     List<String> blocks = new ArrayList<String>();
@@ -458,10 +453,10 @@ public class DanielEncryptionMain {
     }
     System.out.print("'");
     List<String> transposed = transpose(blocks, keySize);
-    pepe = "n";
+    indicator = "n";
     StringBuffer sb = new StringBuffer();
     for (String block : transposed) {
-      key = sb.append((char) DanielEncryptionSteps.findKey(block, pepe)).toString();
+      key = sb.append((char) DanielEncryptionSteps.findKey(block, indicator)).toString();
     }
     System.out.print("'");
     System.out.println();
@@ -483,85 +478,85 @@ public class DanielEncryptionMain {
   }
 
   public static String options(Scanner br) {
-    String pepe = "y";
+    String indicator = "y";
     String option = DanielEncryptionMain.entry(br);
-    String fahrvergnugen = null;
+    String letterValues = null;
     String keyFile = null;
     switch (option) {
     case "1":
       System.out.println("Enter a hex value:");
-      fahrvergnugen = DanielEncryptionMain.entry(br);
-      String base64 = DanielConversionUtil.hexToBase64(fahrvergnugen);
+      letterValues = DanielEncryptionMain.entry(br);
+      String base64 = DanielConversionUtil.hexToBase64(letterValues);
       System.out.println("Here is the base 64 conversion:");
       System.out.println(base64);
       System.out.println("");
       break;
     case "1.5":
       System.out.println("Enter a base 64 value:");
-      fahrvergnugen = DanielEncryptionMain.entry(br);
-      String hexadecimal = DanielConversionUtil.base64ToHex(fahrvergnugen);
+      letterValues = DanielEncryptionMain.entry(br);
+      String hexadecimal = DanielConversionUtil.base64ToHex(letterValues);
       System.out.println("Here is the hex conversion:");
       System.out.println(hexadecimal);
       System.out.println("");
       break;
     case "2":
       System.out.println("Enter hex value 1:");
-      String fahrvergnugen1 = DanielEncryptionMain.entry(br);
+      String letterValues1 = DanielEncryptionMain.entry(br);
       System.out.println("Enter hex value 2:");
-      String fahrvergnugen2 = DanielEncryptionMain.entry(br);
-      String xor = DanielEncryptionSteps.xorHex(fahrvergnugen1, fahrvergnugen2);
+      String letterValues2 = DanielEncryptionMain.entry(br);
+      String xor = DanielEncryptionSteps.xorHex(letterValues1, letterValues2);
       System.out.println("Here is the xor'd value:");
       System.out.println(xor);
       System.out.println("");
       break;
     case "3":
-      pepe = "n";
+      indicator = "n";
       System.out.println("Enter the hex-encoded string:");
-      fahrvergnugen = DanielEncryptionMain.entry(br);
-      DanielEncryptionSteps.findKey(fahrvergnugen, pepe);
+      letterValues = DanielEncryptionMain.entry(br);
+      DanielEncryptionSteps.findKey(letterValues, indicator);
       System.out.println("");
       System.out.println("");
       System.out.println("Would you like to see the output for all keys?");
-      pepe = DanielEncryptionMain.entry(br);
-      if (pepe.toLowerCase().contains("y")) {
-        DanielEncryptionSteps.findKey(fahrvergnugen, pepe);
+      indicator = DanielEncryptionMain.entry(br);
+      if (indicator.toLowerCase().contains("y")) {
+        DanielEncryptionSteps.findKey(letterValues, indicator);
         System.out.println("");
       }
       break;
     case "4":
-      fahrvergnugen = "challenge4.txt";
-      DanielEncryptionSteps.readFileLines(pepe, fahrvergnugen);
+      letterValues = "challenge4.txt";
+      DanielEncryptionSteps.readFileLines(indicator, letterValues);
       break;
     case "5":
       System.out.println("");
       System.out.println("Enter the name of the text file you want to encrypt:");
-      fahrvergnugen = DanielEncryptionMain.entry(br);
+      letterValues = DanielEncryptionMain.entry(br);
       System.out.println("Now enter the name of key file:");
       keyFile = DanielEncryptionMain.entry(br);
       String keylet = DanielEncryptionSteps.readFile(keyFile);
       System.out.println("Key = " + keylet);
-      String filet = DanielEncryptionSteps.readFile(fahrvergnugen);
+      String filet = DanielEncryptionSteps.readFile(letterValues);
       System.out.println("File text =");
       System.out.println(filet);
       System.out.println("Here is the encryption:");
       String encryption = DanielEncryptionSteps.codeIt(filet, keylet);
       System.out.println(encryption);
-      DanielEncryptionSteps.writeToFile(encryption, fahrvergnugen);
+      DanielEncryptionSteps.writeToFile(encryption, letterValues);
       System.out.println("Encryption Successful");
       break;
     case "5.5":
       System.out.println("");
       System.out.println("Enter the name of the file you want to decrypt:");
-      fahrvergnugen = DanielEncryptionMain.entry(br);
+      letterValues = DanielEncryptionMain.entry(br);
       System.out.println("Now enter the name of key file:");
       keyFile = DanielEncryptionMain.entry(br);
-      String encodedfile = DanielEncryptionSteps.readFile(fahrvergnugen);
-      encodedfile = DanielConversionUtil.base64ToHex(encodedfile);
+      String encodedfile = DanielEncryptionSteps.readFile(letterValues);
+      //encodedfile = DanielConversionUtil.base64ToHex(encodedfile);
       String key = DanielEncryptionSteps.readFile(keyFile);
       System.out.println("Here is the decrypted message:");
       String decryption = DanielEncryptionSteps.decodeIt(encodedfile, key);
       System.out.println(decryption);
-      DanielEncryptionSteps.writeToFile(decryption, fahrvergnugen);
+      DanielEncryptionSteps.writeToFile(decryption, letterValues);
       break;
     case "6":
       String file = "decrypt_this";
@@ -572,47 +567,45 @@ public class DanielEncryptionMain {
       float[] keySizes = findTheKeySizes(binaryText);
       int keySize = 0;
       keySize = whichOne(keySizes, keySize);
-      String keyString = solveIt(ascii, keySize, pepe);
+      String keyString = solveIt(ascii, keySize, indicator);
       System.out.println("Press any key to read decrypted message.");
-      pepe = entry(br);
-      pepe = "n";
+      indicator = entry(br);
+      indicator = "n";
       decryption = DanielEncryptionSteps.decodeIt(hex, keyString);
       System.out.println(decryption);
       System.out.println("");
       System.out.println("Try a different key size?");
-      pepe = entry(br);
-      while (pepe.toLowerCase().contains("y")) {
+      indicator = entry(br);
+      while (indicator.toLowerCase().contains("y")) {
         keySize = whichOne(keySizes, keySize);
-        keyString = solveIt(ascii, keySize, pepe);
+        keyString = solveIt(ascii, keySize, indicator);
         System.out.println("Press any key to read decrypted message.");
-        pepe = entry(br);
-        pepe = "n";
+        indicator = entry(br);
+        indicator = "n";
         decryption = DanielEncryptionSteps.decodeIt(hex, keyString);
         System.out.println(decryption);
         System.out.println("");
         System.out.println("Try again with a different key size?");
-        pepe = entry(br);
+        indicator = entry(br);
       }
       break;
     default:
       System.out.println(
           "You did not enter a valid option. Please enter the number corresponding to one of the above options.");
-      return pepe;
+      return indicator;
     }
     System.out.println("Anything else? (y/n)");
-    pepe = DanielEncryptionMain.entry(br);
-    if (pepe.toLowerCase().contains("y")) {
+    indicator = DanielEncryptionMain.entry(br);
+    if (indicator.toLowerCase().contains("y")) {
       System.out.println("Please select an option.");
     }
-    return pepe;
+    return indicator;
   }
 
   public static void main(String[] args) {
     Scanner br = new Scanner(System.in);
-    String pepe = "y";
-    System.out.println("Encrypt-O-Mat");
-    System.out.println("");
-    System.out.println("What would you like to do today?");
+    String indicator = "y";
+    System.out.println("What would you like to do?");
     System.out.println("");
     System.out.println("1) Convert hexadecimal to base64");
     System.out.println("1.5) Convert base64 to hexadecimal");
@@ -622,11 +615,11 @@ public class DanielEncryptionMain {
     System.out.println("5) Vigenere encryption");
     System.out.println("5.5) Decrypt Vigenere-encrypted file");
     System.out.println("6) Break Vigenere encryption");
-    while (pepe.toLowerCase().contains("y")) {
-      pepe = options(br);
+    while (indicator.toLowerCase().contains("y")) {
+      indicator = options(br);
     }
     System.out.println("");
-    System.out.println("kthxbai.");
+    System.out.println("Bye.");
     br.close();
   }
 }

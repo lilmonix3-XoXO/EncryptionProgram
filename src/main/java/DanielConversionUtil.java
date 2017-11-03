@@ -1,7 +1,4 @@
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+package com.capitalone.homeloans.correspondence.runner;
 
 public class DanielConversionUtil {
 
@@ -29,13 +26,13 @@ public class DanielConversionUtil {
     return binaryString;
   }
 
-  public static int[] asciiToBinary(String fahrvergnugen) {
-    int fillerLength = fahrvergnugen.length() * 8;
+  public static int[] asciiToBinary(String letterValues) {
+    int fillerLength = letterValues.length() * 8;
     int[] binary = new int[fillerLength];
     int j = 0;
-    int[] data = new int[fahrvergnugen.length()];
-    for (int i = 0; i < fahrvergnugen.length(); i++) {
-      data[i] = (int) (fahrvergnugen.charAt(i));
+    int[] data = new int[letterValues.length()];
+    for (int i = 0; i < letterValues.length(); i++) {
+      data[i] = (int) (letterValues.charAt(i));
       for (int k = 7; k > -1; k--) {
         if (data[i] >= (Math.pow(2, k))) {
           binary[j] = 1;
@@ -49,13 +46,13 @@ public class DanielConversionUtil {
     return binary;
   }
 
-  public static int[] hexToBinary(String fahrvergnugen) {
-    int fillerLength = fahrvergnugen.length() * 4;
+  public static int[] hexToBinary(String letterValues) {
+    int fillerLength = letterValues.length() * 4;
     int[] binary = new int[fillerLength];
     int j = 0;
-    int[] data = new int[fahrvergnugen.length()];
-    for (int i = 0; i < fahrvergnugen.length(); i++) {
-      data[i] = Character.getNumericValue(fahrvergnugen.toLowerCase().charAt(i));
+    int[] data = new int[letterValues.length()];
+    for (int i = 0; i < letterValues.length(); i++) {
+      data[i] = Character.getNumericValue(letterValues.toLowerCase().charAt(i));
       for (int k = 3; k > -1; k--) {
         if (data[i] >= (Math.pow(2, k))) {
           binary[j] = 1;
@@ -69,28 +66,28 @@ public class DanielConversionUtil {
     return binary;
   }
   
-  public static String asciiToHex(String fahrvergnugen) {
-    int[] binary = asciiToBinary(fahrvergnugen);
+  public static String asciiToHex(String letterValues) {
+    int[] binary = asciiToBinary(letterValues);
     String hexadecimal = binaryToHex(binary);
     return hexadecimal;
   }
 
-  public static String hexToBase64(String fahrvergnugen) {
-    int[] binary = hexToBinary(fahrvergnugen);
+  public static String hexToBase64(String letterValues) {
+    int[] binary = hexToBinary(letterValues);
     String base64 = binaryToBase64(binary);
     return base64;
   }
 
-  public static String hexToASCII(String fahrvergnugen) {
-    int[] binary = hexToBinary(fahrvergnugen);
+  public static String hexToASCII(String letterValues) {
+    int[] binary = hexToBinary(letterValues);
     String asciiText = binaryToASCII(binary);
     return asciiText;
   }
 
-  public static String base64ToHex(String fahrvergnugen) {
-    int[] binary = base64ToBinary(fahrvergnugen);
+  public static String base64ToHex(String letterValues) {
+    int[] binary = base64ToBinary(letterValues);
     String hexadecimal = binaryToHex(binary);
-    if (Character.toString(fahrvergnugen.charAt(fahrvergnugen.length() - 1)).contains("=")
+    if (Character.toString(letterValues.charAt(letterValues.length() - 1)).contains("=")
         && Character.toString(hexadecimal.charAt(hexadecimal.length() - 1)).contains("0")) {
       if (hexadecimal.length() % 2 != 0) {
         hexadecimal = hexadecimal.substring(0, hexadecimal.length()-1);
@@ -183,12 +180,12 @@ public class DanielConversionUtil {
     return hex;
   }
 
-  public static int[] base64ToBinary(String fahrvergnugen) {
-    int[] base64Binary = new int[(fahrvergnugen.length() * 6)];
+  public static int[] base64ToBinary(String letterValues) {
+    int[] base64Binary = new int[(letterValues.length() * 6)];
     int digit = 0;
     int j = 0;
-    for (int i = 0; i < fahrvergnugen.length(); i++) {
-      char digit64 = fahrvergnugen.charAt(i);
+    for (int i = 0; i < letterValues.length(); i++) {
+      char digit64 = letterValues.charAt(i);
       switch (digit64) {
       case 'A':
         digit = 0;
